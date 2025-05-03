@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QR Code Generator</title>
+    <title>Bulk QR Code Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
@@ -19,12 +19,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-top: 50px;
         }
-        input[type="text"] {
-            width: 300px;
+        textarea {
+            width: 80%;
+            height: 150px;
             padding: 10px;
             margin: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            resize: vertical;
         }
         button {
             padding: 10px 20px;
@@ -38,13 +40,7 @@
         button:hover {
             background-color: #45a049;
         }
-        #qrcode {
-            margin: 20px auto;
-            display: flex;
-            justify-content: center;
-        }
         #downloadBtn {
-            display: none;
             background-color: #2196F3;
         }
         #downloadBtn:hover {
@@ -55,71 +51,126 @@
             display: none;
             margin: 10px;
         }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .qr-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .qr-text {
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            color: #666;
+        }
+        #downloadAllBtn {
+            background-color: #FF5722;
+        }
+        #downloadAllBtn:hover {
+            background-color: #F4511E;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>QR Code Generator</h1>
-        <input type="text" id="qrText" placeholder="Enter text or URL" required>
+        <h1>Bulk QR Code Generator</h1>
+        <p>Enter each item on a new line</p>
+        <textarea id="qrText" placeholder="Enter multiple items, one per line
+Example:
+https://www.google.com
+https://www.github.com
+Hello World"></textarea>
         <br>
-        <button onclick="generateQR()">Generate QR Code</button>
-        <button id="downloadBtn" onclick="downloadQR()">Download QR Code</button>
+        <button onclick="generateQRs()">Generate QR Codes</button>
+        <button id="downloadAllBtn" onclick="downloadAllQRs()" style="display: none;">Download All QR Codes</button>
         <div id="error">Please enter some text first!</div>
-        <div id="qrcode"></div>
+        <div id="qrcodes" class="qr-grid"></div>
     </div>
 
     <script>
-        // Generate QR Code function
-        function generateQR() {
+        function generateQRs() {
             const text = document.getElementById('qrText').value;
             const errorDiv = document.getElementById('error');
-            const qrcodeDiv = document.getElementById('qrcode');
-            const downloadBtn = document.getElementById('downloadBtn');
+            const qrcodesDiv = document.getElementById('qrcodes');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
 
-            // Clear error message
             errorDiv.style.display = 'none';
-
-            // Validate input
             if (!text) {
                 errorDiv.style.display = 'block';
                 return;
             }
 
-            // Clear previous QR code
-            qrcodeDiv.innerHTML = '';
+            // Clear previous QR codes
+            qrcodesDiv.innerHTML = '';
             
-            try {
-                // Generate new QR code
-                new QRCode(qrcodeDiv, {
-                    text: text,
-                    width: 256,
-                    height: 256,
+            // Split input by new lines and filter out empty lines
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+
+            lines.forEach((line, index) => {
+                const qrItem = document.createElement('div');
+                qrItem.className = 'qr-item';
+                
+                const qrContainer = document.createElement('div');
+                qrContainer.id = `qr-${index}`;
+                
+                const textDisplay = document.createElement('div');
+                textDisplay.className = 'qr-text';
+                textDisplay.textContent = line;
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadSingleQR(index, line);
+                
+                qrItem.appendChild(qrContainer);
+                qrItem.appendChild(textDisplay);
+                qrItem.appendChild(downloadBtn);
+                qrcodesDiv.appendChild(qrItem);
+
+                new QRCode(qrContainer, {
+                    text: line,
+                    width: 128,
+                    height: 128,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
                 });
+            });
 
-                // Show download button
-                downloadBtn.style.display = 'inline-block';
-            } catch (e) {
-                errorDiv.innerText = 'Error generating QR code. Please try again.';
-                errorDiv.style.display = 'block';
-                console.error(e);
+            if (lines.length > 0) {
+                downloadAllBtn.style.display = 'inline-block';
             }
         }
 
-        // Download QR Code function
-        function downloadQR() {
-            const canvas = document.querySelector('#qrcode canvas');
+        function downloadSingleQR(index, text) {
+            const canvas = document.querySelector(`#qr-${index} canvas`);
             if (canvas) {
                 const link = document.createElement('a');
-                link.download = 'qrcode.png';
+                link.download = `qrcode-${text.substring(0, 20)}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }
         }
 
-        // Check if QR Code library is loaded
+        function downloadAllQRs() {
+            const qrcodes = document.querySelectorAll('.qr-item');
+            qrcodes.forEach((item, index) => {
+                const canvas = item.querySelector('canvas');
+                const text = item.querySelector('.qr-text').textContent;
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = `qrcode-${index + 1}-${text.substring(0, 20)}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    setTimeout(() => link.click(), index * 100);
+                }
+            });
+        }
+
         window.onload = function() {
             if (typeof QRCode === 'undefined') {
                 document.getElementById('error').innerText = 'QR Code library failed to load. Please refresh the page.';
