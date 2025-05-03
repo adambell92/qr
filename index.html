@@ -91,14 +91,14 @@ https://www.google.com
 https://www.github.com
 Hello World"></textarea>
         <br>
-        <button onclick="generateQRs()">Generate QR Codes</button>
-        <button id="downloadAllBtn" onclick="downloadAllQRs()" style="display: none;">Download All QR Codes</button>
+        <button id="generateBtn">Generate QR Codes</button>
+        <button id="downloadAllBtn" style="display: none;">Download All QR Codes</button>
         <div id="error">Please enter some text first!</div>
         <div id="qrcodes" class="qr-grid"></div>
     </div>
 
     <script>
-        f  function generateQRs() {
+        document.getElementById('generateBtn').addEventListener('click', () => {
             const textarea = document.getElementById('qrText');
             const errorDiv = document.getElementById('error');
             const qrcodesDiv = document.getElementById('qrcodes');
@@ -149,9 +149,9 @@ Hello World"></textarea>
             });
 
             downloadAllBtn.style.display = lines.length > 0 ? 'inline-block' : 'none';
-        }
+        });
 
-        function downloadAllQRs() {
+        document.getElementById('downloadAllBtn').addEventListener('click', () => {
             const qrcodes = document.querySelectorAll('.qr-item');
             qrcodes.forEach((item, index) => {
                 const canvas = item.querySelector('canvas');
@@ -163,14 +163,14 @@ Hello World"></textarea>
                     setTimeout(() => link.click(), index * 100);
                 }
             });
-        }
+        });
 
-        window.onload = function() {
+        window.addEventListener('load', () => {
             if (typeof QRCode === 'undefined') {
                 document.getElementById('error').innerText = 'QR Code library failed to load. Please refresh the page.';
                 document.getElementById('error').style.display = 'block';
             }
-        };
+        });
     </script>
 </body>
 </html>
