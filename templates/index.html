@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <form id="qrForm">
+            <input type="text" id="data" name="data" placeholder="Enter text or URL" required>
+            <br>
+            <button type="submit">Generate QR Code</button>
+        </form>
+        <br>
+        <img id="qrcode" style="display: none;">
+    </div>
+
+    <script>
+        document.getElementById('qrForm').onsubmit = function(e) {
+            e.preventDefault();
+            const data = document.getElementById('data').value;
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `data=${encodeURIComponent(data)}`
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const img = document.getElementById('qrcode');
+                img.src = URL.createObjectURL(blob);
+                img.style.display = 'block';
+            });
+        };
+    </script>
+</body>
+</html>
