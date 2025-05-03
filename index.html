@@ -40,12 +40,6 @@
         button:hover {
             background-color: #45a049;
         }
-        #downloadBtn {
-            background-color: #2196F3;
-        }
-        #downloadBtn:hover {
-            background-color: #1976D2;
-        }
         #error {
             color: red;
             display: none;
@@ -123,13 +117,8 @@ Hello World"></textarea>
                 textDisplay.className = 'qr-text';
                 textDisplay.textContent = line;
                 
-                const downloadBtn = document.createElement('button');
-                downloadBtn.textContent = 'Download';
-                downloadBtn.onclick = () => downloadSingleQR(index, line);
-                
                 qrItem.appendChild(qrContainer);
                 qrItem.appendChild(textDisplay);
-                qrItem.appendChild(downloadBtn);
                 qrcodesDiv.appendChild(qrItem);
 
                 new QRCode(qrContainer, {
@@ -138,22 +127,12 @@ Hello World"></textarea>
                     height: 128,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
+                    correctLevel: QRCode.CorrectLevel.Hl.H
                 });
             });
 
             if (lines.length > 0) {
                 downloadAllBtn.style.display = 'inline-block';
-            }
-        }
-
-        function downloadSingleQR(index, text) {
-            const canvas = document.querySelector(`#qr-${index} canvas`);
-            if (canvas) {
-                const link = document.createElement('a');
-                link.download = `qrcode-${text.substring(0, 20)}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
             }
         }
 
