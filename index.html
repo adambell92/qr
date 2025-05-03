@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>QR Code Generator</title>
-    <!-- Using a different CDN for the QR code library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
@@ -70,24 +69,17 @@
     </div>
 
     <script>
-        // Wait for the page to load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if QRCode library is loaded
-            if (typeof QRCode === 'undefined') {
-                document.getElementById('error').innerText = 'QR Code library failed to load. Please refresh the page.';
-                document.getElementById('error').style.display = 'block';
-            }
-        });
-
+        // Generate QR Code function
         function generateQR() {
             const text = document.getElementById('qrText').value;
             const errorDiv = document.getElementById('error');
             const qrcodeDiv = document.getElementById('qrcode');
-            const downloadBtn = documeument.getElementById('downloadBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
 
-            // Clear previous error message
+            // Clear error message
             errorDiv.style.display = 'none';
 
+            // Validate input
             if (!text) {
                 errorDiv.style.display = 'block';
                 return;
@@ -116,6 +108,7 @@
             }
         }
 
+        // Download QR Code function
         function downloadQR() {
             const canvas = document.querySelector('#qrcode canvas');
             if (canvas) {
@@ -125,6 +118,14 @@
                 link.click();
             }
         }
+
+        // Check if QR Code library is loaded
+        window.onload = function() {
+            if (typeof QRCode === 'undefined') {
+                document.getElementById('error').innerText = 'QR Code library failed to load. Please refresh the page.';
+                document.getElementById('error').style.display = 'block';
+            }
+        };
     </script>
 </body>
 </html>
