@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>QR Code Generator</title>
-    <!-- Add QRCode.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Using a different CDN for the QR code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,6 +41,8 @@
         }
         #qrcode {
             margin: 20px auto;
+            display: flex;
+            justify-content: center;
         }
         #downloadBtn {
             display: none;
@@ -48,6 +50,11 @@
         }
         #downloadBtn:hover {
             background-color: #1976D2;
+        }
+        #error {
+            color: red;
+            display: none;
+            margin: 10px;
         }
     </style>
 </head>
@@ -58,21 +65,40 @@
         <br>
         <button onclick="generateQR()">Generate QR Code</button>
         <button id="downloadBtn" onclick="downloadQR()">Download QR Code</button>
+        <div id="error">Please enter some text first!</div>
         <div id="qrcode"></div>
     </div>
 
     <script>
-        let qrcode = null;
+        // Wait for the page to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if QRCode library is loaded
+            if (typeof QRCode === 'undefined') {
+                document.getElementById('error').innerText = 'QR Code library failed to load. Please refresh the page.';
+                document.getElementById('error').style.display = 'block';
+            }
+        });
 
         function generateQR() {
             const text = document.getElementById('qrText').value;
-            if (text) {
- {
-                // Clear previous QR code
-                document.getElementById('qrcode').innerHTML = '';
-                
+            const errorDiv = document.getElementById('error');
+            const qrcodeDiv = document.getElementById('qrcode');
+            const downloadBtn = documeument.getElementById('downloadBtn');
+
+            // Clear previous error message
+            errorDiv.style.display = 'none';
+
+            if (!text) {
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Clear previous QR code
+            qrcodeDiv.innerHTML = '';
+            
+            try {
                 // Generate new QR code
-                qrcode = new QRCode(document.getElementById('qrcode'), {
+                new QRCode(qrcodeDiv, {
                     text: text,
                     width: 256,
                     height: 256,
@@ -82,7 +108,11 @@
                 });
 
                 // Show download button
-                document.getElementById('downloadBtn').style.display = 'inline-block';
+                downloadBtn.style.display = 'inline-block';
+            } catch (e) {
+                errorDiv.innerText = 'Error generating QR code. Please try again.';
+                errorDiv.style.display = 'block';
+                console.error(e);
             }
         }
 
